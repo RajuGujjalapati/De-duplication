@@ -11,7 +11,7 @@ mysql=MySQL()
 basedir = os.path.abspath(os.path.dirname(__file__))
 # Database
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'db.sqlite')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:nani@localhost:3306/flask_restapi'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://{db username}:{db password}@localhost:3306/{databse name}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO']=True
 db = SQLAlchemy(app)
