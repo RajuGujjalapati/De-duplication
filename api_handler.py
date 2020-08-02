@@ -141,15 +141,22 @@ def preprocess_user_data(ret,ret_ty):
 
 @app.route('/api',methods=['GET'])
 def aadhar_pan_users_check():
-    # data=request.get_json()
+    data=request.get_json()
+    aadhar=data.get('aadhar')
+    pancard=data.get('pan')
+    fname = data.get('firstName')
+    lname = data.get('lastName')
+    gender = data.get('gender')
+    cust_type = data.get('cust_type')
+    dob = data.get('dob')
 
-    aadhar=request.args.get('aadhar')
-    pancard=request.args.get('pan')
-    fname = request.args.get('firstname')
-    lname = request.args.get('lastname')
-    gender = request.args.get('gender')
-    cust_type = request.args.get('cust_type')
-    dob = request.args.get('dob')
+    # aadhar=request.args.get('aadhar')
+    # pancard=request.args.get('pan')
+    # fname = request.args.get('firstname')
+    # lname = request.args.get('lastname')
+    # gender = request.args.get('gender')
+    # cust_type = request.args.get('cust_type')
+    # dob = request.args.get('dob')
     res=[]
     if aadhar!=None and pancard!=None:
         res.append((aadhar_check(aadhar), pan_check(pancard)))
@@ -158,68 +165,85 @@ def aadhar_pan_users_check():
         return str(pan_check(pancard))
     elif aadhar!=None:
         return str(aadhar_check(aadhar))
+    cust_data= {"fname":fname,"lname":lname,"gen":gender,"client_type":cust_type,"dob":dob}
+
+    ret = []
+    ret_ty = []
+    for key,value in cust_data.items():
+        if value is not None:
+            ret.append(value)
+            ret_ty.append( formatting_data[key] )
+
+    return preprocess_user_data(ret,ret_ty),aadhar_check(aadhar)
         # return jsonify({'aadhar': str(aadhar_check(aadhar))})
-    elif fname!=None and lname!=None and gender!=None and cust_type!=None and dob!=None:
-        ret=[fname,lname,gender,cust_type,dob]
-        print("DEBUGGGGGGGGGGGGGGGGGGGGGG")
-        ret_ty=[formatting_data['fname'],formatting_data['lname'],formatting_data['gen'],formatting_data['client_type'],formatting_data['dob']]
-        # print(ret_ty)
-        return preprocess_user_data(ret,ret_ty)
+    # elif fname!=None and lname!=None and gender!=None and cust_type!=None and dob!=None and aadhar!=None and pancard!=None:
+    #     ret=[fname,lname,gender,cust_type,dob, aadhar, pancard]
+    #     print("DEBUGGGGGGGGGGGGGGGGGGGGGG")
+    #     ret_ty=[formatting_data['fname'],formatting_data['lname'],formatting_data['gen'],formatting_data['client_type'],formatting_data['dob'],formatting_data['aadhar'],formatting_data['pan']]
+    #     # print(ret_ty)
+    #     return (preprocess_user_data(ret,ret_ty),aadhar_check(aadhar),pan_check(pancard))
 
-    elif fname!=None and lname!=None and gender!=None and cust_type!=None:
-        ret=[fname,lname,gender,cust_type]
-        print("DEBUGGGGGGGGGGGGGGGGGGGGGG2222222222222222222")
+    # elif fname!=None and lname!=None and gender!=None and cust_type!=None:
+    #     ret=[fname,lname,gender,cust_type]
+    #     print("DEBUGGGGGGGGGGGGGGGGGGGGGG2222222222222222222")
 
-        ret_ty=[formatting_data['fname'],formatting_data['lname'],formatting_data['gen'],formatting_data['client_type']]
-        # print(ret_ty)
-        return preprocess_user_data(ret,ret_ty),aadhar_check(aadhar)
-    elif fname!=None and lname!=None and gender!=None:
-        ret=[fname,lname,gender]
-        print("DEBUGGGGGGGGGGGGGGGGG33333333333333333333333333333")
+    #     ret_ty=[formatting_data['fname'],formatting_data['lname'],formatting_data['gen'],formatting_data['client_type']]
+    #     # print(ret_ty)
+    #     return preprocess_user_data(ret,ret_ty),aadhar_check(aadhar)
+    # elif fname!=None and lname!=None and gender!=None:
+    #     ret=[fname,lname,gender]
+    #     print("DEBUGGGGGGGGGGGGGGGGG33333333333333333333333333333")
 
-        ret_ty=[formatting_data['fname'],formatting_data['lname'],formatting_data['gen']]
-        # print(ret_ty)
-        return preprocess_user_data(ret,ret_ty)
-    elif fname!=None and lname!=None and dob!=None:
-        ret=[fname,lname,dob]
-        print(1000*'3')
-        ret_ty=[formatting_data['fname'],formatting_data['lname'],formatting_data['dob']]
-        return preprocess_user_data(ret,ret_ty),aadhar_check(aadhar)
-    elif fname!=None and lname!=None:
-        ret=[fname,lname]
-        print(1000*'2')
-        ret_ty=[formatting_data['fname'],formatting_data['lname']]
-        # print(ret_ty)
-        return preprocess_user_data(ret,ret_ty)
-    elif fname!=None and lname!=None and cust_type!=None and dob!=None:
-        ret=[fname,lname,gender,cust_type,dob] 
-        print(1000*'4')
-        ret_ty=[formatting_data['fname'],formatting_data['lname'],formatting_data['client_type'],formatting_data['dob']]
-        # print(ret_ty)
-        return preprocess_user_data(ret,ret_ty),aadhar_check(aadhar)
-    elif fname!=None and lname!=None and gender!=None and cust_type!=None:
-        ret=[fname,lname,gender,cust_type]
-        print(1000*'5')
-        ret_ty=[formatting_data['fname'],formatting_data['lname'],formatting_data['gen'],formatting_data['client_type']]
-        # print(ret_ty)
-        return preprocess_user_data(ret,ret_ty),aadhar_check(aadhar)
-    elif fname!=None:
-        ret=[fname]
-        print(type(fname))
-        ret_ty=[formatting_data['fname']]
-        # print(ret_ty)
-        return preprocess_user_data(ret,ret_ty)
-    else:
-        return "Something wrong"
+    #     ret_ty=[formatting_data['fname'],formatting_data['lname'],formatting_data['gen']]
+    #     # print(ret_ty)
+    #     return preprocess_user_data(ret,ret_ty)
+    # elif fname!=None and lname!=None and dob!=None:
+    #     ret=[fname,lname,dob]
+    #     print(1000*'3')
+    #     ret_ty=[formatting_data['fname'],formatting_data['lname'],formatting_data['dob']]
+    #     return preprocess_user_data(ret,ret_ty),aadhar_check(aadhar)
+    # elif fname!=None and lname!=None:
+    #     ret=[fname,lname]
+    #     print(1000*'2')
+    #     ret_ty=[formatting_data['fname'],formatting_data['lname']]
+    #     # print(ret_ty)
+    #     return preprocess_user_data(ret,ret_ty)
+    # elif fname!=None and lname!=None and cust_type!=None and dob!=None:
+    #     ret=[fname,lname,gender,cust_type,dob] 
+    #     print(1000*'4')
+    #     ret_ty=[formatting_data['fname'],formatting_data['lname'],formatting_data['client_type'],formatting_data['dob']]
+    #     # print(ret_ty)
+    #     return preprocess_user_data(ret,ret_ty),aadhar_check(aadhar)
+    # elif fname!=None and lname!=None and gender!=None and cust_type!=None:
+    #     ret=[fname,lname,gender,cust_type]
+    #     print(1000*'5')
+    #     ret_ty=[formatting_data['fname'],formatting_data['lname'],formatting_data['gen'],formatting_data['client_type']]
+    #     # print(ret_ty)
+    #     return preprocess_user_data(ret,ret_ty),aadhar_check(aadhar)
+    # elif fname!=None:
+    #     ret=[fname]
+    #     print(type(fname))
+    #     ret_ty=[formatting_data['fname']]
+    #     # print(ret_ty)
+    #     return preprocess_user_data(ret,ret_ty)
+    # else:
+    #     return "Something wrong"
 
         
-@app.route('/api',methods=['POST'])
-def json_example():
+# @app.route('/api',methods=['GET'])
+# def json_example():
 
-    req = request.get_json()
-
-    print(req)
-    return 'Thanks'
+#     req = request.get_json()
+#     fname=req['firstName']
+#     lname = req['lastName']
+#     gender = req['gender']
+#     if fname!=None and lname!=None:
+#         ret=[fname]
+#         print(type(fname))
+#         ret_ty=[formatting_data['fname']]
+#         # print(ret_ty)
+#         return preprocess_user_data(ret,ret_ty)
+    # return preprocess_user_data(a,b)
 
 if __name__ == '__main__':
   app.run(debug=True)
