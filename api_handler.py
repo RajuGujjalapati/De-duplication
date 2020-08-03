@@ -1,19 +1,14 @@
 # from aadhar_pan_api import *
 from datapreprocessing import Row_list,df
 from flask import Flask, request, jsonify,Response,render_template
-from flask_sqlalchemy import SQLAlchemy
-from flask_marshmallow import Marshmallow
-from flaskext.mysql import MySQL
 from fuzzywuzzy import fuzz
-# from storing_info import *
-import pymysql
-
-
+import ast
+import json
 app = Flask(__name__)
 new_df = df
 print(df)
 
-formatting_data = {"fname":1,"lname":2,"gen":3,"location":4,"client_type":5,"aadhar":6,"pan":7,"dob":8}
+formatting_data = {"fname":1,"lname":2,"gen":3,"location":4,"client_type":5,"aadhar":6,"pancard":7,"dob":8}
 
 def json_final_output_data():
     req_data = [ data for data in Row_list]
@@ -45,7 +40,7 @@ def aadhar_check(aadhar):
             return ({aadhar:"Check the input and try again"})
         # Iterate over each row 
         store_aadhar=[]
-        for index, rows in df.iterrows(): 
+        for _, rows in df.iterrows(): 
             # print(rows.aadharNumber) 
             aadharData=[rows['firstName'],rows['lastName'],rows['gender'],rows['dob'],rows['location'],rows['clientType'],rows['aadharNumber'],rows['panCard']]
             store_aadhar.append(aadharData)
@@ -60,22 +55,27 @@ def aadhar_check(aadhar):
                 clientType=data[5]
                 aadharNumber=data[6]
                 panCard=data[7]
-                final_data_aadhar={"firstName":firstName,"lastName":lastName,"gender":gender,"dob":dob,"location":location,"clientType":clientType,"aadharNumber":aadharNumber,"panCard":panCard}
+                final_data_aadhar={"firstName":firstName,"lastName":lastName,"gender":gender,"dob":dob,"location":location,"clientType":clientType,"aadharNumber":aadharNumber,"panCard":panCard,"Matching Percentage":100}
                 # print(final_data_aadhar)
+                with open('personal.json', 'a+') as json_file:
+                    json.dump(final_data_aadhar, json_file)
+                    json_file.write(',')
                 return final_data_aadhar
         else:
             return ({aadhar:"User aadhar details not found"})
     except TypeError:
-        return ("No Details Found Please Check Again")
+        return ({aadhar:"No aadhar Details Found Please Check Again"})
+    except Exception as e:
+        return e
 
 def pan_check(pancard):
     try:
         print("Checking with pan")
         if len(pancard)<=9 or len(pancard)>=11 :
             # raise "Input_Error"
-            return ({pancard:"Check the input and try again"})
+            return ({pancard:"Check the input  length and try again"})
         store_pan=[]
-        for index, rows in new_df.iterrows():
+        for _, rows in new_df.iterrows():
                 my_list =[rows.firstName, rows.lastName, rows.gender, rows.dob, rows.location, rows.clientType, rows.aadharNumber, rows.panCard]
                 store_pan.append(my_list)
         for data in store_pan:
@@ -88,18 +88,20 @@ def pan_check(pancard):
                 clientType=data[5]
                 aadharNumber=data[6]
                 panCard=data[7]
-                final_data_pan= {"firstName":firstName,"lastName":lastName,"gender":gender,"dob":dob,"location":location,"clientType":clientType,"aadharNumber":aadharNumber,"panCard":panCard}
+                final_data_pan= {"firstName":firstName,"lastName":lastName,"gender":gender,"dob":dob,"location":location,"clientType":clientType,"aadharNumber":aadharNumber,"panCard":panCard,"Matching Percentage":100}
+                # with open('personal.json', 'a+') as json_file:
+                #     json.dump(final_data_pan, json_file)
+                #     json_file.write(',')
                 return final_data_pan               
         return ({pancard:"User pan details not Found"})
     except TypeError:
-        return "No Details Found Please Check Again"
+        return {pancard:"No Pan Details Found Please Check Again"}
 
 def preprocess_user_data(ret,ret_ty):
     user_input=str(','.join(ret))   
     print("Comparing  input:",user_input)
     sorted_data={}  
     for data in range(len(requireddata(ret_ty))):
-
         result_data = fuzz.token_sort_ratio(user_input,requireddata(ret_ty)[data])
         print("Matching Details:",requireddata(ret_ty)[data])
         #saving to dict     
@@ -134,116 +136,84 @@ def preprocess_user_data(ret,ret_ty):
         matching_per = user_data[8]
         data_to_store={"firstName":firstName,"lastName":lastName,"gender":gender,"dob":dob,"location":location,"clientType":clientType,"aadharNumber":aadharNumber,"panCard":panCard,"Matching Percentage":matching_per}
         res_s.append(data_to_store)
-        # return jsonify({"firstName":firstName,"lastName":lastName,"gender":gender,"dob":dob,"location":location,"clientType":clientType,"aadharNumber":aadharNumber,"panCard":panCard,"Matching Percentage":matching_per})
-    return str(res_s)
-# @app.route('/api', defaults={'aadhar':'','pan':''})
+    dictionary = {i:d for i, d in enumerate(res_s)}
+    # with open('personal.json', 'a+') as json_file:
+        # if len(json_file.read())<1:
+        #     json.dump(res_s, json_file)
+        #     json_file.write(',')
+        # main_list=[]
+        # for i in json_file.readlines():
+        #     x=ast.literal_eval(i)
+        #     main_list.append(x)
+        # json.dump(main_list, json_file)
+        # json_file.write(',')
+        # read=json_file.readlines()
+        # if len(read)<1:
+        #     json_file.write(str(res_s))
+        # read=json_file.readlines()
+        # main_list=[]
+        # for i in read:
+        #     x=ast.literal_eval(i)
+        #     main_list.append(x)
+        # main_list.append(res_s)
+        # json_file.writelines(str(main_list))
 
+
+
+        # json_file.write(str(res_s))
+        # json_file.writelines(str(dictionary))
+        # json_file.write(",")
+        # json_file.write("\n")
+    
+        # return jsonify({"firstName":firstName,"lastName":lastName,"gender":gender,"dob":dob,"location":location,"clientType":clientType,"aadharNumber":aadharNumber,"panCard":panCard,"Matching Percentage":matching_per})
+    return str(dictionary)
 
 @app.route('/api',methods=['GET'])
 def aadhar_pan_users_check():
     data=request.get_json()
     aadhar=data.get('aadhar')
-    pancard=data.get('pan')
-    fname = data.get('firstName')
-    lname = data.get('lastName')
-    gender = data.get('gender')
-    cust_type = data.get('cust_type')
-    dob = data.get('dob')
-
-    # aadhar=request.args.get('aadhar')
-    # pancard=request.args.get('pan')
-    # fname = request.args.get('firstname')
-    # lname = request.args.get('lastname')
-    # gender = request.args.get('gender')
-    # cust_type = request.args.get('cust_type')
-    # dob = request.args.get('dob')
-    res=[]
+    pancard=data.get('pancard')
+    # fname = data.get('firstName')
+    # lname = data.get('lastName')
+    # gender = data.get('gender')
+    # cust_type = data.get('cust_type')
+    # dob = data.get('dob')
+    cust_data = {
+    'fname' : data.get('firstName'),
+    'lname' : data.get('lastName'),
+    'gen' : data.get('gender'),
+    'client_type' : data.get('cust_type'),
+    'dob' : data.get('dob'),
+    'aadhar': data.get('aadhar'),
+    'pancard': data.get('pancard')
+}
+    res = []
+          
     if aadhar!=None and pancard!=None:
         res.append((aadhar_check(aadhar), pan_check(pancard)))
         return str(res)
     elif pancard!=None:
         return str(pan_check(pancard))
-    elif aadhar!=None:
-        return str(aadhar_check(aadhar))
-    cust_data= {"fname":fname,"lname":lname,"gen":gender,"client_type":cust_type,"dob":dob}
+    
 
-    ret = []
-    ret_ty = []
+    ret = []#user_input value storage
+    print(ret)
+    ret_key = []
     for key,value in cust_data.items():
-        if value is not None:
+        print(",,,,,nnnnm",key,value)
+        if aadhar!=None and pancard==None:
             ret.append(value)
-            ret_ty.append( formatting_data[key] )
-
-    return preprocess_user_data(ret,ret_ty),aadhar_check(aadhar)
-        # return jsonify({'aadhar': str(aadhar_check(aadhar))})
-    # elif fname!=None and lname!=None and gender!=None and cust_type!=None and dob!=None and aadhar!=None and pancard!=None:
-    #     ret=[fname,lname,gender,cust_type,dob, aadhar, pancard]
-    #     print("DEBUGGGGGGGGGGGGGGGGGGGGGG")
-    #     ret_ty=[formatting_data['fname'],formatting_data['lname'],formatting_data['gen'],formatting_data['client_type'],formatting_data['dob'],formatting_data['aadhar'],formatting_data['pan']]
-    #     # print(ret_ty)
-    #     return (preprocess_user_data(ret,ret_ty),aadhar_check(aadhar),pan_check(pancard))
-
-    # elif fname!=None and lname!=None and gender!=None and cust_type!=None:
-    #     ret=[fname,lname,gender,cust_type]
-    #     print("DEBUGGGGGGGGGGGGGGGGGGGGGG2222222222222222222")
-
-    #     ret_ty=[formatting_data['fname'],formatting_data['lname'],formatting_data['gen'],formatting_data['client_type']]
-    #     # print(ret_ty)
-    #     return preprocess_user_data(ret,ret_ty),aadhar_check(aadhar)
-    # elif fname!=None and lname!=None and gender!=None:
-    #     ret=[fname,lname,gender]
-    #     print("DEBUGGGGGGGGGGGGGGGGG33333333333333333333333333333")
-
-    #     ret_ty=[formatting_data['fname'],formatting_data['lname'],formatting_data['gen']]
-    #     # print(ret_ty)
-    #     return preprocess_user_data(ret,ret_ty)
-    # elif fname!=None and lname!=None and dob!=None:
-    #     ret=[fname,lname,dob]
-    #     print(1000*'3')
-    #     ret_ty=[formatting_data['fname'],formatting_data['lname'],formatting_data['dob']]
-    #     return preprocess_user_data(ret,ret_ty),aadhar_check(aadhar)
-    # elif fname!=None and lname!=None:
-    #     ret=[fname,lname]
-    #     print(1000*'2')
-    #     ret_ty=[formatting_data['fname'],formatting_data['lname']]
-    #     # print(ret_ty)
-    #     return preprocess_user_data(ret,ret_ty)
-    # elif fname!=None and lname!=None and cust_type!=None and dob!=None:
-    #     ret=[fname,lname,gender,cust_type,dob] 
-    #     print(1000*'4')
-    #     ret_ty=[formatting_data['fname'],formatting_data['lname'],formatting_data['client_type'],formatting_data['dob']]
-    #     # print(ret_ty)
-    #     return preprocess_user_data(ret,ret_ty),aadhar_check(aadhar)
-    # elif fname!=None and lname!=None and gender!=None and cust_type!=None:
-    #     ret=[fname,lname,gender,cust_type]
-    #     print(1000*'5')
-    #     ret_ty=[formatting_data['fname'],formatting_data['lname'],formatting_data['gen'],formatting_data['client_type']]
-    #     # print(ret_ty)
-    #     return preprocess_user_data(ret,ret_ty),aadhar_check(aadhar)
-    # elif fname!=None:
-    #     ret=[fname]
-    #     print(type(fname))
-    #     ret_ty=[formatting_data['fname']]
-    #     # print(ret_ty)
-    #     return preprocess_user_data(ret,ret_ty)
-    # else:
-    #     return "Something wrong"
-
-        
-# @app.route('/api',methods=['GET'])
-# def json_example():
-
-#     req = request.get_json()
-#     fname=req['firstName']
-#     lname = req['lastName']
-#     gender = req['gender']
-#     if fname!=None and lname!=None:
-#         ret=[fname]
-#         print(type(fname))
-#         ret_ty=[formatting_data['fname']]
-#         # print(ret_ty)
-#         return preprocess_user_data(ret,ret_ty)
-    # return preprocess_user_data(a,b)
-
+            ret_key.append( formatting_data[key] )
+            return str((preprocess_user_data(ret,ret_key),(aadhar_check(aadhar))))
+        elif aadhar==None and pancard!=None:
+            ret.append(value)
+            ret_key.append( formatting_data[key] )
+            return str((preprocess_user_data(ret,ret_key),(aadhar_check(aadhar))))
+        elif value is not None:
+            ret.append(value)
+            ret_key.append( formatting_data[key] )#storing key value and matching with dataframe      
+    return str((preprocess_user_data(ret,ret_key)))
+    
+    # return (preprocess_user_data(ret,ret_key))
 if __name__ == '__main__':
   app.run(debug=True)
