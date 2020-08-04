@@ -1,13 +1,29 @@
-import requests
 import json
-from flask import request
+def aadhar_():
+    print( "aadhar success")
 
-# url = "http://localhost:5000/api"  
+def pan_():
+    print("pan successs")
+def users_pre():
+    print("hey success") 
+var={'firstName': 'raju', 'lastName': 'g', 'gender': 'male', 'dob': '06/09/1997', 'location': 'tirupati', 'clientType':
+'cust', 'aadhar': '123456789124'}
+def res():
+    for k,v in var.items():
+    
+        if ('aadhar' is not None) and ('pancard' is None):
+            print("aadhar")
+            res= aadhar_()
+        if ('pancard' is not None) and ('aadhar' is None):
+            print("pan")
+            res =  pan_()
 
-# data = {'firstname':"raju"}
+        if ('aadhar' and 'pancard')!=None:
+            print("two")
+            res = aadhar_(),pan_()
 
-# headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+    return res      # return users_pre()
+    
+res()
+        
 
-# r = requests.get(url,json=data, headers=headers)
-# print(r.url)
-# print(r.content)
