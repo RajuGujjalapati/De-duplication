@@ -57,9 +57,9 @@ def aadhar_check(aadhar):
                 panCard=data[7]
                 final_data_aadhar={"firstName":firstName,"lastName":lastName,"gender":gender,"dob":dob,"location":location,"clientType":clientType,"aadharNumber":aadharNumber,"panCard":panCard,"Matching Percentage":100}
                 # print(final_data_aadhar)
-                with open('personal.json', 'a+') as json_file:
-                    json.dump(final_data_aadhar, json_file)
-                    json_file.write(',')
+                # with open('personal.json', 'a+') as json_file:
+                #     json.dump(final_data_aadhar, json_file)
+                #     json_file.write(',')
                 return final_data_aadhar
         else:
             return ({aadhar:"User aadhar details not found"})
@@ -92,7 +92,7 @@ def pan_check(pancard):
                 # with open('personal.json', 'a+') as json_file:
                 #     json.dump(final_data_pan, json_file)
                 #     json_file.write(',')
-                return final_data_pan               
+                return final_data_pan            #c   
         return ({pancard:"User pan details not Found"})
     except TypeError:
         return {pancard:"No Pan Details Found Please Check Again"}
@@ -137,83 +137,68 @@ def preprocess_user_data(ret,ret_ty):
         data_to_store={"firstName":firstName,"lastName":lastName,"gender":gender,"dob":dob,"location":location,"clientType":clientType,"aadharNumber":aadharNumber,"panCard":panCard,"Matching Percentage":matching_per}
         res_s.append(data_to_store)
     dictionary = {i:d for i, d in enumerate(res_s)}
-    # with open('personal.json', 'a+') as json_file:
-        # if len(json_file.read())<1:
-        #     json.dump(res_s, json_file)
-        #     json_file.write(',')
-        # main_list=[]
-        # for i in json_file.readlines():
-        #     x=ast.literal_eval(i)
-        #     main_list.append(x)
-        # json.dump(main_list, json_file)
-        # json_file.write(',')
-        # read=json_file.readlines()
-        # if len(read)<1:
-        #     json_file.write(str(res_s))
-        # read=json_file.readlines()
-        # main_list=[]
-        # for i in read:
-        #     x=ast.literal_eval(i)
-        #     main_list.append(x)
-        # main_list.append(res_s)
-        # json_file.writelines(str(main_list))
-
-
-
-        # json_file.write(str(res_s))
-        # json_file.writelines(str(dictionary))
-        # json_file.write(",")
-        # json_file.write("\n")
-    
+    return dictionary
         # return jsonify({"firstName":firstName,"lastName":lastName,"gender":gender,"dob":dob,"location":location,"clientType":clientType,"aadharNumber":aadharNumber,"panCard":panCard,"Matching Percentage":matching_per})
-    return str(dictionary)
+     #we can use dict gives tuple
+
 
 @app.route('/api',methods=['GET'])
 def aadhar_pan_users_check():
     data=request.get_json()
     aadhar=data.get('aadhar')
     pancard=data.get('pancard')
-    # fname = data.get('firstName')
-    # lname = data.get('lastName')
-    # gender = data.get('gender')
-    # cust_type = data.get('cust_type')
-    # dob = data.get('dob')
+
     cust_data = {
-    'fname' : data.get('firstName'),
-    'lname' : data.get('lastName'),
-    'gen' : data.get('gender'),
-    'client_type' : data.get('cust_type'),
-    'dob' : data.get('dob'),
-    'aadhar': data.get('aadhar'),
-    'pancard': data.get('pancard')
-}
-    res = []
+        'fname' : data.get('firstName'),
+        'lname' : data.get('lastName'),
+        'gen' : data.get('gender'),
+        'client_type' : data.get('cust_type'),
+        'dob' : data.get('dob'),
+        'aadhar':data.get('aadhar'),#comment below two if you don't need to check with aadhar and pan
+        'pancard':data.get('pancard')
+    }
+
           
-    if aadhar!=None and pancard!=None:
-        res.append((aadhar_check(aadhar), pan_check(pancard)))
-        return str(res)
-    elif pancard!=None:
-        return str(pan_check(pancard))
+    ret = []
+    ret_ty = []
+    for key,value in cust_data.items():
+        if value is not None:
+            ret.append(value)
+            ret_ty.append( formatting_data[key] ) 
+    preprocess_result = preprocess_user_data(ret,ret_ty)
+    
+    if (pancard is not None) and (aadhar is not None):
+        check_result = (aadhar_check(aadhar),pan_check(pancard))#'YOUR_CODE_HERE' # your_code_here
+    
+    elif (pancard is not None) and (aadhar is None):
+        check_result = pan_check(pancard)
+    elif (pancard is None) and (aadhar is not None):
+        check_result = aadhar_check(aadhar)
+    else:
+        #use this incase if you dont need to compare with aadhar and pan in check_user dict
+        # check_result = ''
+        preprocess_result = preprocess_user_data(ret,ret_ty)
+        return preprocess_result
+    
+    # if len(ret) == 0:
+    #     return (check_result)#use jsonify if you dont need to use aadhar and pan in local dict
+    result_json_data=((preprocess_result, check_result))
+    result_to_save = {i:v for i,v in enumerate(result_json_data)}
+    return result_to_save
+
     
 
-    ret = []#user_input value storage
-    print(ret)
-    ret_key = []
-    for key,value in cust_data.items():
-        print(",,,,,nnnnm",key,value)
-        if aadhar!=None and pancard==None:
-            ret.append(value)
-            ret_key.append( formatting_data[key] )
-            return str((preprocess_user_data(ret,ret_key),(aadhar_check(aadhar))))
-        elif aadhar==None and pancard!=None:
-            ret.append(value)
-            ret_key.append( formatting_data[key] )
-            return str((preprocess_user_data(ret,ret_key),(aadhar_check(aadhar))))
-        elif value is not None:
-            ret.append(value)
-            ret_key.append( formatting_data[key] )#storing key value and matching with dataframe      
-    return str((preprocess_user_data(ret,ret_key)))
-    
-    # return (preprocess_user_data(ret,ret_key))
+
+
+    # if len(ret) == 0:
+    #     preprocess_result = None
+    #     # return check_result
+        
+    # else:
+    #     preprocess_result = preprocess_user_data(ret,ret_ty)
+
+
+    # return str((preprocess_result, check_result))
+
 if __name__ == '__main__':
   app.run(debug=True)
