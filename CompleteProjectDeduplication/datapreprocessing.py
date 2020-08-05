@@ -32,5 +32,5 @@ for index, rows in df.iterrows():
 	my_list =[rows.firstName, rows.lastName, rows.gender, rows.dob, rows.location, rows.clientType, rows.aadharNumber, rows.panCard] 
 	# append the list to the final list 
 	Row_list.append(my_list) 
-print(my_list) 
+print(Row_list) 
 

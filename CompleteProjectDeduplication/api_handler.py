@@ -1,6 +1,5 @@
 # from aadhar_pan_api import *
-# from datapreprocessing import Row_list,df
-from newdfconver import df
+from datapreprocessing import Row_list,df
 from flask import Flask, request, jsonify,Response,render_template
 from fuzzywuzzy import fuzz
 import ast
@@ -103,11 +102,6 @@ def preprocess_user_data(ret,ret_ty):
         #saving to dict     
         for x in range(len(json_final_output_data())):
             if data==x:
-                """
-                Already the json_final is in list format so, we are taking the percentage
-                from result_data and whole data from json_final function and by taking these two
-                variables storing in dict format.
-                """
                 sorted_data[result_data]=json_final_output_data()[data]
             else:
                 continue
