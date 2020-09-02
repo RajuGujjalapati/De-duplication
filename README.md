@@ -1,7 +1,7 @@
 # Flask_Deduplication_backend
 This repository mainly consists of API's which helps us to add data to database and fetch user details and prints the matching percentages according to input.<br>
 
-The four fuzzywuzzy methods call difflib.ratio on different combinations of the input strings.
+The four fuzzywuzzy methods call difflib.ratio on different combinations of the input strings.<br><hr><hr>
 <br>
 <b>fuzz.ratio</b>
 Simple. Just calls difflib.ratio on the two input strings (code).
