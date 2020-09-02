@@ -55,4 +55,3 @@ fuzz.token_sort_ratio("235 Park Ave Floor 12", "235 Park Ave S. Floor 12")<br>
 95<br>
 fuzz.token_set_ratio("235 Park Ave Floor 12", "235 Park Ave S. Floor 12")<br>
 100<br>
-FuzzyWuzzy gives these strings a high match score, but one address is our actual office near Union Square and the other is on the other side of Grand Central.
