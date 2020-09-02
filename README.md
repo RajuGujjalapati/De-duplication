@@ -8,7 +8,7 @@ Simple. Just calls difflib.ratio on the two input strings (code).
 <br>
 fuzz.ratio("NEW YORK METS", "NEW YORK MEATS")<br>
 96<br>
-<b>fuzz.partial_ratio</b>
+<b>fuzz.partial_ratio</b><br>
 Attempts to account for partial string matches better. Calls ratio using the shortest string (length n) against all n-length substrings of the larger string and returns the highest score (code).<br>
 
 Notice here that "YANKEES" is the shortest string (length 7), and we run the ratio with "YANKEES" against all substrings of length 7 of "NEW YORK YANKEES" (which would include checking against "YANKEES", a 100% match):<br>
@@ -17,7 +17,7 @@ fuzz.ratio("YANKEES", "NEW YORK YANKEES")<br>
 60<br>
 fuzz.partial_ratio("YANKEES", "NEW YORK YANKEES")<br>
 100<br>
-fuzz.token_sort_ratio<br>
+<b>fuzz.token_sort_ratio</b><br>
 Attempts to account for similar strings out of order. Calls ratio on both strings after sorting the tokens in each string (code). Notice here fuzz.ratio and fuzz.partial_ratio both fail, but once you sort the tokens it's a 100% match:<br>
 
 fuzz.ratio("New York Mets vs Atlanta Braves", "Atlanta Braves vs New York Mets")<br>
