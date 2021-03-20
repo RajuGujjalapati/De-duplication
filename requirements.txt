@@ -6,7 +6,7 @@ Flask-MySQL==1.5.1
 Flask-SQLAlchemy==2.4.4
 fuzzywuzzy==0.18.0
 itsdangerous==1.1.0
-Jinja2==2.11.2
+Jinja2==2.11.3
 MarkupSafe==1.1.1
 marshmallow==3.7.1
 numpy==1.19.1
